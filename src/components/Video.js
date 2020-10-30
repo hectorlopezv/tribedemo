@@ -1,221 +1,11 @@
-import React from 'react';
+import React, {useMemo, useEffect} from 'react';
 
 
 
 /*import the LIBRARY */
 import * as bodyPix from '@tensorflow-models/body-pix';
-export class VideoTracking {
-    constructor(model_config_number, config_prediction_number, type_device_number, width, height, device_id_str) {
-        this.model_architeture_options = [{ architecture: "MobileNetV1", outputStride: 16, multiplier: 0.5, quantBytes: 2, },
-            { architecture: 'MobileNetV1', outputStride: 16, multiplier: 0.75, quantBytes: 2 },
-            { architecture: 'MobileNetV1', outputStride: 16, multiplier: 0.75, quantBytes: 2 },
-            { architecture: 'MobileNetV1', outputStride: 8, multiplier: 1, quantBytes: 2 },
-            { architecture: 'ResNet50', outputStride: 16, quantBytes: 2 }];
-        this.effect_config_precission = [{ flipHorizontal: false, internalResolution: 'low', segmentationThreshold: 0.7 },
-            { flipHorizontal: false, internalResolution: 'medium', segmentationThreshold: 0.7 },
-            { flipHorizontal: false, internalResolution: 'high', segmentationThreshold: 0.7 },
-            { flipHorizontal: false, internalResolution: 'ultra', segmentationThreshold: 0.7 }];
-        this.type_of_device = [{ audio: false, video: { facingMode: "user", width: width, height: height } },
-            { audio: false, video: { facingMode: { exact: "environment" }, width: width, height: height } },
-            { audio: false, video: { deviceId: device_id_str, width: width, height: height } },
-            { audio: false, video: { width: width, height: height } }];
-        this.selection_model_option = this.model_architeture_options[model_config_number];
-        this.selection_effect_option = this.effect_config_precission[config_prediction_number];
-        this.selection_type_device = this.type_of_device[type_device_number];
-        this.model = this._load_model(this.selection_model_option);
-        this.videoStream = this.load_Video_stream(this.selection_type_device);
-        this.canvasElemenet = this.createCanvas(width, height);
-        this.VideoElement = this.createVideo(width, height);
-        this.predictionModel = new Prediction(this.model, this.videoStream, this.canvasElemenet, this.selection_effect_option, width, height);
-    }
-    createCanvas(width, height) {
-        const canvas = document.createElement('canvas');
-        canvas.setAttribute('width', String(width));
-        canvas.setAttribute('height', String(height));
-        return canvas;
-    }
-    createVideo(width, height) {
-        const video = document.createElement('video');
-        video.setAttribute('autoplay', 'false');
-        video.setAttribute('width', String(width));
-        video.setAttribute('height', String(height));
-        video.style.display = 'none';
-        return video;
-    }
-    _load_model(config_model) {
-        return bodyPix.load(config_model);
-    }
-    async load_Video_stream(config_constrains) {
-        const stream = await navigator.mediaDevices.getUserMedia(config_constrains);
-        this.VideoElement.srcObject = stream; /*SetVideo Stream Source*/ /*MediaStream Video*/
-        this.video_stream = stream;
-        return this.PromiseCreator();
-    }
-    PromiseCreator() {
-        return new Promise((resolve) => {
-            this.VideoElement.onloadedmetadata = () => {
-                this.VideoElement.width = this.VideoElement.videoWidth;
-                this.VideoElement.height = this.VideoElement.videoHeight;
-                resolve(this.VideoElement);
-            };
-        });
-    }
-    static addVideo(HTMLelement, videoElement) {
-        HTMLelement.appendChild(videoElement);
-    }
-}
-export class Prediction {
-    constructor(loaded_model, videoMediaStream, canvasElemenet, selection_effect_option, width, height) {
-        this.loaded_model = loaded_model;
-        this.videoMediaStream = videoMediaStream;
-        this.stop = false;
-        this.canvasElement = canvasElemenet;
-        this.selection_effect_option = selection_effect_option;
-        this.width = width;
-        this.height = height;
-    }
-    static addHTMLCanvas_Video(parentNode, nodeToAdd) {
-        parentNode.appendChild(nodeToAdd);
-    }
-    canvas_mediaStream(fps) {
-        const ctx = this.canvasElement.getContext("2d");
-        const stream = this.canvasElement.captureStream(fps);
-        return stream;
-    }
-    async videoImageData(width, height, videoElement) {
-        /*Create Canvas*/
-        const canvas = document.createElement('canvas');
-        canvas.setAttribute('width', String(width));
-        canvas.setAttribute('height', String(height));
-        /*Write data To image*/
-        const context = canvas.getContext('2d');
-        const img = videoElement;
-        context.drawImage(img, 0, 0);
-        const theData = context.getImageData(0, 0, width, height);
-        return theData;
-    }
-    async getImageData(width, height, base64) {
-        /*Create Image object*/
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        /*Create new image*/
-        const img = new Image();
-        img.crossOrigin = '';
-        img.src = base64;
-        /*Resize image to canvas*/
-        ctx.drawImage(img, 0, 0, img.width, img.height, /*source rectangle*/ 0, 0, width, height); /*destination rectangle*/
-        return ctx.getImageData(0, 0, width, height);
-    }
-    stopAnimationLoop() {
-        this.stop = true;
-        return this.stop;
-    }
-    async make_prediction_load() {
-        if (typeof this.loaded_video === 'undefined') {
-            this.loaded_video = await this.videoMediaStream;
-            this.model_prediction = await this.loaded_model;
-        }
-    }
-    async effect_blur_background(canvasElement, image, personSegmentation, config) {
-        const { backgroundBlurAmount, edgeBlurAmount, flipHorizontal } = config;
-        await bodyPix.drawBokehEffect(canvasElement, image, personSegmentation, backgroundBlurAmount, edgeBlurAmount, flipHorizontal);
-    }
-    async virtualBackground_(prediction, canvasElement, videoElement, config, base64_img) {
-        const canvas = canvasElement;
-        const newImg = canvas.getContext('2d').createImageData(this.width, this.height);
-        const newImgData = newImg.data;
-        //Prediction
-        const { data: map } = prediction;
-        const pixelLength = map.length;
-        //Video Data
-        const { data: videoData } = await this.videoImageData(this.width, this.height, videoElement);
-        //ImageData
-        const { data: imgData } = await this.getImageData(this.width, this.height, base64_img);
-        for (let i = 0; i < pixelLength; i++) {
-            const [r, g, b, a] = [imgData[i * 4], imgData[i * 4 + 1], imgData[i * 4 + 2], imgData[i * 4 + 3]];
-            [
-                newImgData[i * 4],
-                newImgData[i * 4 + 1],
-                newImgData[i * 4 + 2],
-                newImgData[i * 4 + 3]
-            ] = !map[i] ? [r, g, b, a] : [
-                videoData[i * 4],
-                videoData[i * 4 + 1],
-                videoData[i * 4 + 2],
-                0
-            ];
-        }
-        
-        const { backgroundBlurAmount, edgeBlurAmount, flipHorizontal } = config;
-        bodyPix.drawMask(canvas, videoElement, newImg, backgroundBlurAmount, edgeBlurAmount, flipHorizontal);
-    }
-    async virtual_background(canvasElement, videoElement, personSegmentation, config, base64_img) {
-        await this.virtualBackground_(personSegmentation, canvasElement, videoElement, config, base64_img);
-    }
-    async blurBodyPart_(canvasElement, videoElement, personSegmentationParts, config) {
-        /*Reference of Body Parts*/
-        const { backgroundBlurAmount, edgeBlurAmount, flipHorizontal, faceBodyPartIdsToBlur } = config;
-        await bodyPix.blurBodyPart(canvasElement, videoElement, personSegmentationParts, faceBodyPartIdsToBlur, backgroundBlurAmount, edgeBlurAmount, flipHorizontal);
-    }
-    async grayScale(canvasElement, videoElement, personSegmentation) {
-        const { data: map } = personSegmentation;
-        // Extracting video data
-        const { data: imgData } = await this.videoImageData(this.width, this.height, videoElement);
-        //New canvas
-        const canvas = canvasElement;
-        /*Clean Canvas*/
-        //canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-        const newImg = canvas.getContext('2d').createImageData(canvas.width, canvas.height);
-        const newImgData = newImg.data;
-        //[r0, g0, b0, a0, r1, g1, b1, a1, ..., rn, gn, bn, an]
-        for (let i = 0; i < map.length; i++) {
-            const [r, g, b, a] = [imgData[i * 4], imgData[i * 4 + 1], imgData[i * 4 + 2], imgData[i * 4 + 3]];
-            // GrayScale Effect
-            const gray = ((0.3 * r) + (0.59 * g) + (0.11 * b));
-            [
-                newImgData[i * 4],
-                newImgData[i * 4 + 1],
-                newImgData[i * 4 + 2],
-                newImgData[i * 4 + 3]
-            ] = !map[i] ? [gray, gray, gray, 255] : [r, g, b, a];
-        }
-        canvas.getContext('2d').putImageData(newImg, 0, 0); /*Paint the canvas*/
-    }
-    async loop_(type_prediciton, config_) {
-        await this.make_prediction_load();
-        const loaded_video = this.loaded_video;
-        const model_prediction = this.model_prediction;
-        const config = { ...config_, ...this.selection_effect_option };
-        const { base64_img } = config;
-        const loopping = async () => {
-            if (this.stop) {
-                /*if the is  a loop running stop it*/
-                this.stop = false; /*making the object reusable*/
-                return;
-            }
-            if (type_prediciton === 1) { /*Blur Background - - PersonSegmentation*/
-                const prediction_frame = await model_prediction.segmentPerson(loaded_video, config);
-                this.effect_blur_background(this.canvasElement, this.loaded_video, prediction_frame, config);
-            }
-            else if (type_prediciton === 2) { //Virtual Background - PersonSegmentation
-                const prediction_frame = await model_prediction.segmentPerson(loaded_video, config);
-                this.virtual_background(this.canvasElement, this.loaded_video, prediction_frame, config, base64_img);
-            }
-            else if (type_prediciton === 3) { //Gray SCale - PersonSegmentation
-                const prediction_frame = await model_prediction.segmentPerson(loaded_video, config);
-                this.grayScale(this.canvasElement, this.loaded_video, prediction_frame);
-            }
-            else if (type_prediciton === 4) { //Blur Body PARTS - PersonSegmentationPARTS
-                const prediction_frameParts = await model_prediction.segmentPersonParts(loaded_video, config);
-                this.blurBodyPart_(this.canvasElement, this.loaded_video, prediction_frameParts, config);
-            }
-            window.requestAnimationFrame(loopping); /*Recursive call*/
-        };
-        loopping(); /*Closure*/
-    }
-}
+
+import { VideoTracking, Prediction } from 'tribe_lib';
 
 
 const config_effect_bokek = {backgroundBlurAmount: 20, edgeBlurAmount: 10};
@@ -227,86 +17,84 @@ const blur_video = new VideoTracking(0, 2, 3,640, 480);
 const grey = new VideoTracking(0, 2, 3,640, 480);
 const body_part = new VideoTracking(0, 2, 3,640, 480);
 const virtual = new VideoTracking(0, 2, 3,640, 480);;
+
 const test_video = document.createElement('video');
-test_video.setAttribute('autoPlay', 'true');
+test_video.setAttribute('autoplay', 'true');
+test_video.setAttribute("preload", "auto");
+
+
+const computeVideo = (blur, grayscale, blurBodyPart, vbackground) => {  
+    if(blur)
+    {
+        blur_video.predictionModel.loop_(1, config_effect_bokek);
+        const canvas_stream = blur_video.predictionModel.canvas_mediaStream(25);
+        test_video.srcObject = canvas_stream;
+    }
+
+    else if(vbackground)
+    {
+        virtual.predictionModel.loop_(2, config_virtual_background);
+        const canvas_stream = virtual.predictionModel.canvas_mediaStream(25);
+        test_video.srcObject = canvas_stream;
+    }
+
+    else if(blurBodyPart){
+        body_part.predictionModel.loop_(4, config_blur_body_part);
+        const canvas_stream = body_part.predictionModel.canvas_mediaStream(25);
+        test_video.srcObject = canvas_stream;
+    }
+
+    else if(grayscale){
+        grey.predictionModel.loop_(3);
+        const canvas_stream = grey.predictionModel.canvas_mediaStream(25);
+        test_video.srcObject = canvas_stream;
+    }
+
+    return (  
+        <div className="button-container"  ref={ref => ref && ref.appendChild(test_video)} /> 
+    );
+
+}
 
 
 
 const Video = (props) => {
-    const {blur, grayscale, blurBodyPart, vbackground} = props;
-    const executeVideo = (blur) => {
-        if(blur)
-        {
-            //blur_video.predictionModel.stopAnimationLoop();
-            blur_video.predictionModel.loop_(1,  config_effect_bokek);
-            
-            /*meadia Stream*/
-            const canvas_stream = blur_video.predictionModel.canvas_mediaStream(25);
-
-
-            test_video.srcObject = canvas_stream;
-
-            return (   
-                <div className="button-container"  ref={ref => ref && ref.appendChild(test_video)} /> 
-             );
-        }
-
-        if(grayscale){
-
-
-
-            grey.predictionModel.loop_(3, config_greyScale);
-
-            /*meadia Stream*/
-            const canvas_stream = grey.predictionModel.canvas_mediaStream(25);
-
-            test_video.srcObject = canvas_stream;
-            return (  
-                <div className="button-container"  ref={ref => ref && ref.appendChild(test_video)} /> 
-            );
-        }
-
-        if(blurBodyPart){
-
-
-            body_part.predictionModel.loop_(4, config_blur_body_part);
-
-            /*meadia Stream*/
-            const canvas_stream = body_part.predictionModel.canvas_mediaStream(25);
-
-
-            test_video.srcObject = canvas_stream;
-            return (  
-                <div className="button-container"  ref={ref => ref && ref.appendChild(test_video)} />
-             );
-
+    const {blur, grayscale, blurBodyPart, vbackground, 
+        fblur, fgrayscale, fblurBodyPart, fvbackground} = props;
+    useEffect(() => {
+        
+        if(blur){
+            fblur(false);
+            fgrayscale(false);
+            fblurBodyPart(false);
+            fvbackground(false);
         }
 
         if(vbackground){
-            
-            
-            virtual.predictionModel.loop_(2, config_virtual_background);
-        
-            /*meadia Stream*/
-            const canvas_stream = virtual.predictionModel.canvas_mediaStream(25);
-            test_video.srcObject = canvas_stream;
-
-            return (  
-                    <div className="button-container"  ref={ref => ref && ref.appendChild(test_video)} /> 
-                );
-
+            fblur(false);
+            fblurBodyPart(false);
+            fgrayscale(false);
         }
-            return ( <p className="text-purple pt-5 lead">Tribe needs your permission to access the camera and microphone.</p> );
+
+        if(blurBodyPart){
+            fblur(false);
+            fvbackground(false);
+            fgrayscale(false);
         }
+
+        if(grayscale){
+            fblur(false);
+            fblurBodyPart(false);
+            fvbackground(false);
+        }
+
+      });
+   const renderVideo = useMemo(() => computeVideo(blur, grayscale, blurBodyPart, vbackground), [blur, grayscale, blurBodyPart, vbackground]);
 
     return ( 
         <div className="d-flex justify-content-center align-items-center">
             <div id="replaceCam" className="my-3 video">
-
-                {
-                    executeVideo(blur)
-                }
-                
+                {renderVideo}
             </div>
         </div>
 

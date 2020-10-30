@@ -16,7 +16,7 @@ const Container: React.FunctionComponent<ContainerProps> = () => {
 
     const [blur, setblur] = useState(false);
     const [grayscale, setgrayscale] = useState(false);
-    const [blurBodyPart, setblurBodyPart] = useState(false);
+    const [blurBodyPart,setblurBodyPart ] = useState(false);
     const [vbackground, setvbackground] = useState(false);
 
     return (  
@@ -29,6 +29,10 @@ const Container: React.FunctionComponent<ContainerProps> = () => {
             grayscale={grayscale}
             blurBodyPart={blurBodyPart}
             vbackground={vbackground}
+            fblur={setblur}
+            fgrayscale={setgrayscale}
+            fblurBodyPart={setblurBodyPart}
+            fvbackground={setvbackground}
         />
         <ButtonJoin 
             blur_state={[blur, setblur]}

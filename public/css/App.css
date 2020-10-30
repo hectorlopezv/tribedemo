@@ -1,0 +1,257 @@
+.nav-bg{
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+
+.intro {
+    background: linear-gradient( rgb(125, 94, 192) 99%, white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: Inter,sans-serif;
+}
+
+.titulo{
+    font-family: 'Orbitron', sans-serif;
+    margin-left: 60px;
+}
+.iconcito{
+    font-size: 50px;
+}
+.shadow{
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    font-weight: 800;
+    margin-left: 60px;
+}
+
+
+
+#carouselExampleCaptions{
+    background-color: rebeccapurple;
+    margin-top: 2px;
+}
+
+.cardsita{
+    margin-right: 20px;
+
+}
+
+
+.fotito{
+
+    height: 120px;
+    width: 120px;
+}
+
+.fotito2{
+    height: 80px;
+    width: 240px;
+}
+
+.iconrepo svg{
+    color: white;
+    font-size: 50px;
+}
+
+.tribe_img{
+    width: 100%;
+    height: 26%;
+}
+
+.tribe_logo{
+    width: 30%;
+    height: 250px;
+}
+
+.p-tribe{
+    font-size: 20px;
+}
+
+
+.js:hover, .js:link, .js:active, .js:visited {
+    color: #F7DF1E;
+}
+.py:hover, .py:link, .py:active, .py:visited {
+    color: #3776AB;
+}
+.ts:hover, .ts:link, .ts:active, .ts:visited {
+    color: #FF6F00;
+}
+
+.lab:hover, .lab:link, .lab:active, .lab:visited {
+    color: green;
+}
+
+.linkeid:hover, .linkeid:link, .linkeid:active, .linkeid:visited {
+    color: #0077B5;
+}
+
+
+.git:hover, .git:link, .git:active, .git:visited {
+    color: #181717;
+}
+
+.twitter:hover, .twitter:link, .twitter:active, .twitter:visited {
+    color: #1DA1F2;
+}
+
+
+.App {
+    text-align: center;
+  }
+  
+  .App-logo {
+    height: 40vmin;
+    pointer-events: none;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+      animation: App-logo-spin infinite 20s linear;
+    }
+  }
+  
+  .App-header {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    color: #8d67dd;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: Inter,sans-serif;
+  }
+  .button-container{
+ 
+  }
+
+
+  .App-link {
+    color: #61dafb;
+  }
+  
+  @keyframes App-logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+
+
+
+  .buttonjoin{
+    align-items: center;
+    background-color: rgb(141, 103, 221);
+    border: rgb(141, 103, 221);
+    border-radius: 5px;
+    height: 44px;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    width: 110px;
+}
+
+.buttonjoin:hover{
+    opacity: 0.8;
+}
+
+.buttonjoin:focus {
+    background-color: rgb(52, 145, 15);
+
+
+}
+
+.buttonpermision {
+  color: #e7e7e7;
+  background-color: rgb(141, 103, 221);
+  font-size: 18px;
+  font-weight: 20;
+  border-radius: 5px;
+  padding: 8px;
+  border: 2px solid rgb(141, 103, 221);
+  font-family: Inter,sans-serif;
+}
+
+.buttonpermision:hover{
+  opacity: 0.8;
+  color: white;
+}
+
+.border {
+  font-family: Inter,sans-serif;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 0 18px 0 rgba(0,0,0,.14);
+  padding: 24px;
+}
+
+
+.intro {
+  background-color:  rgb(141, 103, 221);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  font-family: Inter,sans-serif;
+}
+
+
+.name_tribe {
+  color: #8d67dd;
+}
+.p{
+  opacity: .85;
+  color: #292f36;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+}
+
+label{
+  justify-content: flex-start;
+}
+video {
+  width: 642px;
+  height: 360px;
+}
+html {
+    scroll-behavior: smooth;
+}
+.video{
+  display: flex;
+  border-radius: 5px;
+  width: 642px;
+  height: 360px;
+  align-items: center;
+  flex-direction: column; 
+}
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
